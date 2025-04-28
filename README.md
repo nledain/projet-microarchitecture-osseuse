@@ -1,25 +1,25 @@
-# Bone Fracture Risk Prediction
+# Prédiction du Risque de Fracture Osseuse
 
-This project is part of the P2I8 course at INSA Lyon (2024-2025).
+Ce projet est réalisé dans le cadre du cours P2I8 à l'INSA Lyon (2024-2025).
 
-We aim to predict the fracture risk of bone samples using 3D X-ray tomography imaging combined with finite element modeling (FEM).
+L'objectif est de prédire le risque de fracture d'échantillons osseux à partir d'images de tomographie aux rayons X, combinées à une modélisation par éléments finis (MEF).
 
-## Project Objectives
+## Objectifs du Projet
 
-- Process 3D X-ray tomography scans of bone samples
-- Calculate architectural parameters (BV/TV, trabecular thickness, etc.)
-- Generate voxel-based finite element meshes
-- Assign mechanical properties to each voxel (density → Young's modulus)
-- Perform mechanical simulations to predict fracture risk
+- Traiter les scans 3D de tomographie des échantillons osseux
+- Calculer des paramètres architecturaux (BV/TV, épaisseur trabéculaire, etc.)
+- Générer des maillages en éléments finis basés sur les voxels
+- Associer des propriétés mécaniques à chaque voxel (densité → module de Young)
+- Effectuer des simulations mécaniques pour prédire le risque de fracture
 
-## Project Structure
+## Organisation du Projet
 
-- `data/` — Raw and processed image data
-- `notebooks/` — Jupyter notebooks for exploration and analysis
-- `code/` — Python scripts for processing, segmentation, meshing, and exporting
-- `requirements.txt` — List of Python libraries required
+- `data/` — Données brutes et données traitées
+- `notebooks/` — Notebooks Jupyter pour l'exploration et l'analyse
+- `code/` — Scripts Python pour le traitement, la segmentation, le maillage, et l'export
+- `requirements.txt` — Liste des bibliothèques Python nécessaires
 
-## Authors
+## Auteurs
 
-- Team G283
-- INSA Lyon — P2I8: Imaging in Industry and Medicine
+- Équipe G283
+- INSA Lyon — P2I8 : Imagerie Industrielle et Médicale
