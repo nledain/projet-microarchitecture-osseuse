@@ -23,7 +23,7 @@ arr_down = downscale_local_mean(arr, (10, 10, 10)).astype(np.float32)
 print(f"Downsampled shape: {arr_down.shape} in {time.time() - start:.2f} seconds")
 
 # Step 3: Threshold to segment bone
-print("🦴 Applying threshold to extract bone...")
+print("Applying threshold to extract bone...")
 start = time.time()
 binary = (arr_down > 150).astype(np.uint8)  # Adjust threshold as needed
 print(f"Thresholding done in {time.time() - start:.2f} seconds")
