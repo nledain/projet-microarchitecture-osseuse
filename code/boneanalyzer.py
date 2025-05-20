@@ -1,74 +1,69 @@
 import SimpleITK as sitk
 import numpy as np
-import pandas as pd
 from scipy.ndimage import distance_transform_edt
 from skimage.measure import regionprops, label
-from scipy.linalg import eigvalsh
 
 def read_image(path):
     image = sitk.ReadImage(path)
     return sitk.GetArrayFromImage(image)
 
-def compute_BVTV(mask):
-    return np.sum(mask) / np.prod(mask.shape)
-
-def compute_thickness(mask):
+def compute_thickness_array(mask):
     dt = distance_transform_edt(mask)
     local_thickness = dt * 2
     return np.mean(local_thickness[local_thickness > 0])
 
-def compute_separation(inverted_mask):
-    dt = distance_transform_edt(inverted_mask)
-    local_sep = dt * 2
-    return np.mean(local_sep[local_sep > 0])
+def compute_distance(mask):
+    dt = distance_transform_edt(1-mask)
+    local_distance = dt * 2
+    return np.mean(local_distance[local_distance > 0])
 
-def compute_anisotropy(mask):
-    labeled = label(mask)
-    props = regionprops(labeled)
-    coords = np.vstack([p.coords for p in props if p.area > 10])
-    coords = coords - coords.mean(axis=0)
-    cov = np.cov(coords.T)
-    eigvals = np.sort(eigvalsh(cov))[::-1]
-    return eigvals[0] / eigvals[-1] if eigvals[-1] > 0 else np.nan
 
-def compute_porosity(mask, original_bone_mask):
-    return 1 - (np.sum(mask) / np.sum(original_bone_mask))
+import SimpleITK as sitk
+import numpy as np
+import cv2
+from skimage.filters import threshold_otsu
 
-def analyze_region(mask, original, region_name="trabecular"):
-    results = {}
+def segmentation(volume, type):
+    segmented = np.zeros_like(volume, dtype=np.uint8)  # Will store 0, 1, 2
 
-    BVTV = compute_BVTV(mask)
-    thickness = compute_thickness(mask)
-    anisotropy = compute_anisotropy(mask)
+# === Step 2: Loop through slices and classify ===
+    for z in range(volume.shape[0]):
+        slice_img = volume[z, :, :].astype(np.uint8)
 
-    results[f"{region_name}_BVTV"] = BVTV
-    results[f"{region_name}_Thickness"] = thickness
-    results[f"{region_name}_Anisotropy"] = anisotropy
+        # Otsu threshold for background vs bone
+        t1 = threshold_otsu(slice_img)
 
-    if region_name == "trabecular":
-        separation = compute_separation(~mask)
-        results[f"{region_name}_Separation"] = separation
-    else:
-        porosity = compute_porosity(mask, original)
-        results[f"{region_name}_Porosity"] = porosity
+        # Mask 1: Bone area (everything inside the specimen)
+        bone_mask = slice_img > t1
 
-    return results
+        # Now within the bone area, re-apply Otsu to separate trabecular vs cortical
+        if np.any(bone_mask):
+            t2 = threshold_otsu(slice_img[bone_mask])
+        else:
+            t2 = 255  # prevent crash
 
-def main():
-    # === Load images ===
-    bone_image = read_image("bone_scan.tiff")
-    cortical_mask = read_image("cortical_mask.tiff").astype(bool)
-    trabecular_mask = read_image("trabecular_mask.tiff").astype(bool)
+    # Assign labels:
+    # 0 - background
+    # 1 - cortical (intermediate gray values)
+    # 2 - trabecular (brightest)
 
-    # === Analyze ===
-    trabecular_results = analyze_region(trabecular_mask, bone_image, "trabecular")
-    cortical_results = analyze_region(cortical_mask, bone_image, "cortical")
+    slice_seg = np.zeros_like(slice_img, dtype=np.uint8)
+    slice_seg[slice_img > t1] = 1  # bone mask
+    slice_seg[slice_img > t2] = 2  # trabecular overwrite cortical
 
-    # === Save results ===
-    all_results = {**trabecular_results, **cortical_results}
-    df = pd.DataFrame([all_results])
-    df.to_excel("bone_analysis_results.xlsx", index=False)
-    print("✅ Results saved to 'bone_analysis_results.xlsx'")
+    segmented[z] = slice_seg
+
+
+im = np.array(img)
+im_vect = np.ravel(img)
+plt.subplot(1,3,1)
+plt.imshow(img,cmap='gray')
+plt.subplot(1,3,3)
+plt.hist(im_vect,bins = 256 ,range = (0,256),color='k')
+
+seuils= ski.filters.threshold_multiotsu(im, classes=3)
+print(seuils)
+segmented = np.digitize(im, bins=seuils)
+
 
 if __name__ == "__main__":
-    main()
