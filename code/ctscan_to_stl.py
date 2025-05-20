@@ -12,7 +12,7 @@ start_total = time.time()
 # Step 1: Load the 3D TIFF image
 print("Loading TIFF image...")
 start = time.time()
-image = sitk.ReadImage("C:/Users/20109/Desktop/P2I8 Data/E10_10um_1200_1200_1200.tif", sitk.sitkFloat32)
+image = sitk.ReadImage(traiter_images_tiff("C:/Users/20109/Desktop/P2I8 Data/E10_10um_1200_1200_1200.tif", "C:/Users/20109/Desktop/P2I8 Data/E17_FILTRÉ.tif") , sitk.sitkFloat32)
 arr = sitk.GetArrayFromImage(image)
 print(f"Image loaded in {time.time() - start:.2f} seconds")
 
