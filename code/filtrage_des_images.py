@@ -46,6 +46,7 @@ def traiter_images_tiff(chemin_tiff_entree, chemin_tiff_sortie):
         print(f"{len(images_conservees)} tranches valides sauvegardées dans : {chemin_tiff_sortie}")
     else:
         print("Aucune tranche valide détectée.")
+    return chemin_tiff_sortie
 
 # === Exécution ===
 chemin_entree = "D:/INSA/FIMI 3-a/P2I/E17_10um_1200_1200_1200.tif"
