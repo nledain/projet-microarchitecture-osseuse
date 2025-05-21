@@ -1,5 +1,6 @@
 import SimpleITK as sitk
 import numpy as np
+from PIL import Image
 from scipy.ndimage import distance_transform_edt
 from skimage.measure import regionprops, label
 
@@ -16,6 +17,16 @@ def compute_distance(mask):
     dt = distance_transform_edt(1-mask)
     local_distance = dt * 2
     return np.mean(local_distance[local_distance > 0])
+
+def bone_fraction (img):  #calcul fraction osseuse
+    pix_n_sum = np.sum(img==0)   #nbre de pixels noirs
+    pix_b_sum = np.sum(img==255)   #nbre de pixels blancs
+    frac = pix_b_sum/pix_n_sum    #fraction PAR IMAGE  
+    return frac
+
+
+
+
 
 
 import SimpleITK as sitk
