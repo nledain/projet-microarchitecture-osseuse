@@ -3,6 +3,54 @@ import numpy as np
 from PIL import Image
 from scipy.ndimage import distance_transform_edt
 from skimage.measure import regionprops, label
+import skimage
+from scipy import scipŷ
+import numpy as np
+from skimage.filters import threshold_otsu
+from skimage.morphology import binary_closing, disk
+from scipy.ndimage import binary_fill_holes
+from skimage.feature import canny
+import matplotlib.pyplot as plt
+
+
+
+
+
+
+#def edge_detection(image):
+
+edges = canny(image, sigma=2.0)  # Tune sigma based on sharpness
+
+plt.imshow(final_mask, cmap='nipy_spectral')
+plt.show()
+
+
+'''
+# Close small gaps in edge to create a full contour
+closed_edges = binary_closing(edges, selem=disk(3))
+
+# Fill enclosed area (bone region)
+bone_mask = binary_fill_holes(closed_edges)
+
+# Apply threshold only on pixels inside bone
+inside_bone_pixels = image[bone_mask]
+thresh_inside = threshold_otsu(inside_bone_pixels)
+
+# Create mask of background inside bone
+background_inside_bone = (image < thresh_inside) & bone_mask
+
+final_mask = np.zeros_like(image, dtype=np.uint8)
+final_mask[bone_mask] = 2                      # Initially mark bone
+final_mask[background_inside_bone] = 1         # Overwrite inside-bone background
+
+
+
+
+
+
+
+
+
 
 def read_image(path):
     image = sitk.ReadImage(path)
@@ -108,3 +156,4 @@ segmented = np.digitize(im, bins=seuils)
 
 
 if __name__ == "__main__":
+'''
