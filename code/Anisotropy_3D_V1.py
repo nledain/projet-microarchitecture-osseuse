@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue May 27 08:54:05 2025
-
-@author: Baptiste
-"""
-
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import numpy as np
@@ -23,61 +16,6 @@ from structure_tensor import eig_special_3d, structure_tensor_3d
 
 from skimage.transform import downscale_local_mean
 from skimage import img_as_float32
-
-## en premier lieu on filtre le tiff pour se débarasser des premières images non importantes
-## le code ci-dessous enregistre un nouveau fichier sous le nom de Test_1_filtré qui ne comporte que les images nécessaires
-''' 
-# Seuils plus stricts
-SEUIL_FLOU = 150.0
-SEUIL_SOMBRE = 78
-
-def est_floue(image_np, seuil=SEUIL_FLOU):
-    variance = cv2.Laplacian(image_np, cv2.CV_64F).var()
-    return variance < seuil
-
-def est_trop_sombre(image_np, seuil=SEUIL_SOMBRE):
-    moyenne = np.mean(image_np)
-    return moyenne < seuil
-
-def ameliorer_contraste(image_np):
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
-    return clahe.apply(image_np)
-
-def traiter_images_tiff(chemin_tiff_entree, chemin_tiff_sortie):
-    image_tiff = Image.open(chemin_tiff_entree)
-    images_conservees = []
-    total_tranches = image_tiff.n_frames
-
-    for indice in range(total_tranches):
-        image_tiff.seek(indice)
-        image_gris = np.array(image_tiff.convert('L'))
-
-        # On teste l'image brute AVANT traitement
-        if est_floue(image_gris) or est_trop_sombre(image_gris):
-            continue  # on saute cette image
-
-        # Si ok → on améliore l’image pour l’export
-        image_amelioree = ameliorer_contraste(image_gris)
-        images_conservees.append(Image.fromarray(image_amelioree))
-
-    # Sauvegarde
-    if images_conservees:
-        images_conservees[0].save(
-            chemin_tiff_sortie,
-            save_all=True,
-            append_images=images_conservees[1:],
-            compression="tiff_deflate"
-        )
-        print(f"{len(images_conservees)} tranches valides sauvegardées dans : {chemin_tiff_sortie}")
-    else:
-        print("Aucune tranche valide détectée.")
-    return chemin_tiff_sortie
-
-# === Exécution ===
-chemin_entree = "Test_1.tif"
-chemin_sortie = "Test_1_filtré.tif"
-traiter_images_tiff(chemin_entree, chemin_sortie)
-'''
 
 ## on lit l'image en 3 dimensions
 
@@ -106,7 +44,36 @@ rho = 2 ## moyenne les variations du tenseur dans une région, plus rho est gran
 S = structure_tensor_3d(data_downscaled, sigma, rho)
 val, vec = eig_special_3d(S)
 
-print(f'The eigenvalues are {val}')
+## Now the computation of the Fractional Anisotropy
+ 
+# Extract eigenvalues
+
+lambda1 = val[..., 0] ## we take the first eigenvalue (the largest) from the 1st dimension of the val array, for all voxels
+lambda2 = val[..., 1] 
+lambda3 = val[..., 2] ## smallest eigenvalue for each voxel
+
+## formula of the FA 
+lambda_mean = (lambda1 + lambda2 + lambda3) / 3
+
+numerator = ((lambda1 - lambda_mean)**2 +
+             (lambda2 - lambda_mean)**2 +
+             (lambda3 - lambda_mean)**2)
+
+denominator = lambda1**2 + lambda2**2 + lambda3**2 + 1e-12
+
+FA = np.sqrt(1.5) * np.sqrt(numerator) / np.sqrt(denominator)  # Shape (Z, Y, X)
+
+# Print summary stats, le .4f indique que l'on veut un float avec 4 chiffres après la virgule
+print(f"Fractional Anisotropy: mean = {FA.mean():.4f}, median = {np.median(FA):.4f}, max = {FA.max():.4f}")
+
+## we plot the histogram of Fractional Anisotropy
+plt.hist(FA.ravel(), bins=100, color='steelblue')
+plt.title("Histogram of Fractional Anisotropy (FA)")
+plt.xlabel("FA value")
+plt.ylabel("Voxel count")
+plt.grid(True)
+plt.tight_layout()
+plt.show()
 
 
 
