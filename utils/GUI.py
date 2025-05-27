@@ -64,3 +64,4 @@ class LanguageApp(tk.Tk):
 if __name__ == "__main__":
     app = LanguageApp()
     app.mainloop()
+
