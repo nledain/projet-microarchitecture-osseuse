@@ -1,3 +1,5 @@
+#POUR SELECTIONNER LE DEBUT ET LA FIN DU TIFF ET VIRER LES IMAGES MOCHES:
+
 import cv2
 import numpy as np
 from PIL import Image
