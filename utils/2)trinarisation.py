@@ -16,11 +16,12 @@ def detour_clean(image_array):
     thresh_inside = threshold_otsu(inside_bone_pixels)
     background_inside_bone = (image_array < thresh_inside) & bone_mask
 
-    final_mask = np.zeros_like(image_array, dtype=np.uint8)
-    final_mask[bone_mask] = 2
-    final_mask[background_inside_bone] = 1
+    final_mask_arr = np.zeros_like(image_array, dtype=np.uint8)
+    final_mask_arr[bone_mask] = 2
+    final_mask_arr[background_inside_bone] = 1
+    final_mask = Image.fromarray(final_mask_arr)
 
-    return final_mask
+    return final_mask_arr, final_mask
 
 def detour_clean_stack(volume):
     """
