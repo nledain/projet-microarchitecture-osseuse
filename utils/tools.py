@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+
 def histogram(image, title = f"Histogram of {image}", bins=256):
     """
     Plots the histogram of a 2D grayscale image.

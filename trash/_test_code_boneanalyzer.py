@@ -13,18 +13,20 @@ from skimage.feature import canny
 import matplotlib.pyplot as plt
 
 
-
-    
-
-def compute_thickness_array(mask):
-    dt = distance_transform_edt(mask)
+def compute_thickness(volume):
+    # Set everything except 2 to 0
+    volume = np.where(volume == 2, 1, 0)
+    dt = distance_transform_edt(volume)
     local_thickness = dt * 2
     return np.mean(local_thickness[local_thickness > 0])
 
-def compute_distance(mask):
-    dt = distance_transform_edt(1-mask)
+def compute_spacing(volume):
+    # Set everything except 1 to 0
+    volume = np.where(volume == 1, 1, 0)
+    dt = distance_transform_edt(volume)
     local_distance = dt * 2
     return np.mean(local_distance[local_distance > 0])
+
 
 def bone_fraction (img):  #calcul fraction osseuse
     pix_n_sum = np.sum(img==1)   #nbre de pixels noirs

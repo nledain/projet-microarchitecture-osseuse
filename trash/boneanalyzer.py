@@ -12,11 +12,6 @@ from scipy.ndimage import binary_fill_holes
 from skimage.feature import canny
 import matplotlib.pyplot as plt
 
-
-
-
-
-
 #def edge_detection(image):
 
 edges = canny(image, sigma=2.0)  # Tune sigma based on sharpness

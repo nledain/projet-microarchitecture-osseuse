@@ -1,17 +1,22 @@
 import matplotlib.pyplot as plt
 from structure_tensor import eig_special_3d, structure_tensor_3d
+from scipy.ndimage import distance_transform_edt
 from skimage.transform import downscale_local_mean
 import numpy as np
 import tifffile
 
 
 def trabecular_thickness(volume):
+    # Set everything except 2 to 0
+    volume = np.where(volume == 2, 1, 0)
     dt = distance_transform_edt(volume)
     local_thickness = dt * 2
     return np.mean(local_thickness[local_thickness > 0])
 
 def trabecular_distance(volume):
-    dt = distance_transform_edt(1-volume)
+    # Set everything except 1 to 0
+    volume = np.where(volume == 1, 1, 0)
+    dt = distance_transform_edt(volume)
     local_distance = dt * 2
     return np.mean(local_distance[local_distance > 0])
 
@@ -23,7 +28,6 @@ def bone_fraction(image):  #calcul fraction osseuse
 
 def anisotropy(tiff_file):
     '''
-
     Parameters
     ----------
     tiff_file : string
