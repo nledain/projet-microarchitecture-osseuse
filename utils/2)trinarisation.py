@@ -3,20 +3,20 @@ from skimage.filters import threshold_otsu
 from skimage.morphology import binary_closing, binary_fill_holes, disk
 from skimage.feature import canny
 
-def detour_clean(image):
+def detour_clean(image_array):
     """Applies edge-based segmentation on a single 2D slice."""
-    edges = canny(image, sigma=2.0)
+    edges = canny(image_array, sigma=2.0)
     closed_edges = binary_closing(edges, footprint=disk(3.3))
     bone_mask = binary_fill_holes(closed_edges)
 
-    inside_bone_pixels = image[bone_mask]
+    inside_bone_pixels = image_array[bone_mask]
     if inside_bone_pixels.size == 0:
-        return np.zeros_like(image, dtype=np.uint8)
+        return np.zeros_like(image_array, dtype=np.uint8)
 
     thresh_inside = threshold_otsu(inside_bone_pixels)
-    background_inside_bone = (image < thresh_inside) & bone_mask
+    background_inside_bone = (image_array < thresh_inside) & bone_mask
 
-    final_mask = np.zeros_like(image, dtype=np.uint8)
+    final_mask = np.zeros_like(image_array, dtype=np.uint8)
     final_mask[bone_mask] = 2
     final_mask[background_inside_bone] = 1
 
