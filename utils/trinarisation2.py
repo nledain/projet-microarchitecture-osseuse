@@ -40,7 +40,7 @@ def detour_clean_stack(volume):
     """
     mask_stack = np.zeros_like(volume, dtype=np.uint8)
     for z in range(volume.shape[0]):
-        mask_stack[z] = detour_clean(volume[z])
+        mask_stack[z] = detour_clean(volume[z])[0]  # fix here
     return mask_stack
 
 
