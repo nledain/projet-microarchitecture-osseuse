@@ -22,21 +22,34 @@ def trabecular_distance(volume, start=0, end=None):
     local_distance = dt * 2
     return np.mean(local_distance[local_distance > 0])
 
-def frac_vol_tot (im)
+
+def bone_fraction (img_arr):  #calcul fraction osseuse
+    pix_n_sum = np.sum(img_arr==1)   #nbre de pixels noirs
+    pix_b_sum = np.sum(img_arr==2)   #nbre de pixels blancs
+    frac = pix_b_sum/(pix_n_sum + pix_b_sum)   #fraction PAR IMAGE  
+    return frac
+
+
+
+def frac_vol_tot (volume)
     Frac = 0
     cpt = 0
-    for i in range (img1.n_frames):
-        img1.seek(i)
-        img = np.array(img1)
+    im_trin = Image.fromarray(volume)
+    for i in range (im_trin.n_frames):
+        im_trin.seek(i)
+        im_trin_arr = np.array(im_trin)
         
-        im = detour_clean(img)
-        
-        Frac += bone_fraction(im)
+        Frac += bone_fraction(im_trin_arr)
         cpt+=1
     Frac_tot=frac/cpt
     print(f'fraction volumique ={Frac_tot}')
 
-def bone_fraction(volume_3d, start=0, end=None):
+
+
+
+
+
+def bone_fraction_3D(volume_3d, start=0, end=None):
     """
     Computes bone volume fraction (BV/TV) over a 3D trinarized volume.
 
