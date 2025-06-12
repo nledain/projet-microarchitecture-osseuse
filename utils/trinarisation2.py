@@ -6,24 +6,25 @@ from skimage.feature import canny
 import matplotlib.pyplot as plt
 import tifffile
 
-def detour_clean(image):
+def detour_clean(image_array):
     """Applies edge-based segmentation on a single 2D slice."""
     edges = canny(image, sigma=2.0)
     closed_edges = binary_closing(edges, footprint=disk(5))
     bone_mask = binary_fill_holes(closed_edges)
 
-    inside_bone_pixels = image[bone_mask]
+    inside_bone_pixels = image_array[bone_mask]
     if inside_bone_pixels.size == 0:
-        return np.zeros_like(image, dtype=np.uint8)
+        return np.zeros_like(image_array, dtype=np.uint8)
 
     thresh_inside = threshold_otsu(inside_bone_pixels)
-    background_inside_bone = (image < thresh_inside) & bone_mask
+    background_inside_bone = (image_array < thresh_inside) & bone_mask
 
-    final_mask = np.zeros_like(image, dtype=np.uint8)
-    final_mask[bone_mask] = 2
-    final_mask[background_inside_bone] = 1
+    final_mask_arr = np.zeros_like(image_array, dtype=np.uint8)
+    final_mask_arr[bone_mask] = 2
+    final_mask_arr[background_inside_bone] = 1
+    final_mask = Image.fromarray(final_mask_arr)
 
-    return final_mask
+    return final_mask_arr, final_mask
 
 def detour_clean_stack(volume):
     """
