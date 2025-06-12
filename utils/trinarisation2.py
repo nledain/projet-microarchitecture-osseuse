@@ -5,10 +5,12 @@ from scipy.ndimage import binary_fill_holes
 from skimage.feature import canny
 import matplotlib.pyplot as plt
 import tifffile
+from PIL import Image
+
 
 def detour_clean(image_array):
     """Applies edge-based segmentation on a single 2D slice."""
-    edges = canny(image, sigma=2.0)
+    edges = canny(image_array, sigma=2.0)
     closed_edges = binary_closing(edges, footprint=disk(5))
     bone_mask = binary_fill_holes(closed_edges)
 

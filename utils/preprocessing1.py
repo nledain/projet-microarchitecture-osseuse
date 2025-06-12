@@ -2,6 +2,7 @@ import numpy as np
 from skimage.filters import laplace, threshold_otsu
 from skimage.exposure import equalize_adapthist
 from tifffile import TiffFile, imwrite
+from PIL import Image
 
 def compute_otsu_thresholds(image_stack):
     """
@@ -43,28 +44,26 @@ def enhance_contrast(image):
     return equalize_adapthist(img_norm, clip_limit=0.03)
 
 def process_tiff_stack(input_path, output_path, bluriness_threshold, brightness_threshold):
-    """
-    Filter and enhance TIFF slices based on brightness and blur thresholds.
-    Only valid slices are saved.
-    """
-    with TiffFile(input_path) as tif:
-        saved_slices = []
-        for i, slice_img in enumerate(tif.asarray()):
-            slice_img = slice_img.astype(np.float32)
+    image_tiff = Image.open(input_path)
+    saved_slices = []
+    total_slices = image_tiff.n_frames
 
-            # Filtering criteria on raw image
-            if is_too_dark(slice_img, brightness_threshold) or is_blurry(slice_img, bluriness_threshold):
-                print(f"Discarding slice {i} (too dark or blurry)")
-                continue
+    for i in range(total_slices):
+        image_tiff.seek(i)
+        img = np.array(image_tiff.convert("L")).astype(np.float32)
 
-            # Enhance for output visualization
-            enhanced = enhance_contrast(slice_img)
-            enhanced_uint8 = (enhanced * 255).astype(np.uint8)
-            saved_slices.append(enhanced_uint8)
+        if is_blurry(img, bluriness_threshold) or is_too_dark(img, brightness_threshold):
+            print(f"Skipping slice {i} (blur/dark)")
+            continue
+
+        enhanced = enhance_contrast(img)
+        enhanced_uint8 = (enhanced * 255).astype(np.uint8)
+        saved_slices.append(Image.fromarray(enhanced_uint8))
+
 
     # Save result
     if saved_slices:
-        imwrite(output_path, saved_slices, photometric='minisblack', imagej=True, metadata={'axes': 'Zyx'}, compression='deflate', bigtiff=True) # ensures it works for large files > 4GB or many slices
+        imwrite(output_path, saved_slices, photometric='minisblack', imagej=True, metadata={'axes': 'Zyx'}, bigtiff=True) # ensures it works for large files > 4GB or many slices
         print(f"{len(saved_slices)} valid slices saved to: {output_path}")
     else:
         print("No valid slices detected.")
@@ -72,8 +71,8 @@ def process_tiff_stack(input_path, output_path, bluriness_threshold, brightness_
 
 if __name__ == "__main__":
     # Input and output paths
-    input_path = r"c:\Users\20109\Desktop\P2I8 - Projet\P2I8 Data\E10_10um_1200_1200_1200.tif"
-    output_path = r"c:\Users\20109\Desktop\P2I8 - Projet\P2I8 Data\E10(filtered).tif"
+    input_path = r"C:\Users\20109\Desktop\Echantillons\E10_10um_1200_1200_1200.tif"
+    output_path = r"C:\Users\20109\Desktop\Echantillons\E10(filtered).tif"
 
     # Load stack to compute thresholds
     with TiffFile(input_path) as tif:

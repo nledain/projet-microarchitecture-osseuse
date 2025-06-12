@@ -23,6 +23,7 @@ def trabecular_distance(volume):
 def bone_fraction(image_array):  #calcul fraction osseuse
     pix_n_sum = np.sum(image_array==1)   #nbre de pixels noirs
     pix_b_sum = np.sum(image_array==2)   #nbre de pixels blancs
+
     bone_fraction = pix_b_sum/(pix_n_sum + pix_b_sum)   #fraction PAR IMAGE  
     return bone_fraction
 

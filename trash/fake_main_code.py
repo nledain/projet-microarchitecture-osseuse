@@ -53,8 +53,7 @@ def traiter_images_tiff(chemin_tiff_entree, chemin_tiff_sortie):
         images_conservees[0].save(
             chemin_tiff_sortie,
             save_all=True,
-            append_images=images_conservees[1:],
-            compression="tiff_deflate"
+            append_images=images_conservees[1:]
         )
         print(f"{len(images_conservees)} tranches valides sauvegardées dans : {chemin_tiff_sortie}")
     else:
